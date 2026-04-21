@@ -1,0 +1,7 @@
+# .gitignore
+postgres_data/
+__pycache__/
+.DS_Store
+.terraform/
+*.tfstate
+*.tfstate.*

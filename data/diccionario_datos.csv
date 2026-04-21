@@ -1,0 +1,27 @@
+archivo,campo,tipo,descripcion
+clientes.csv,id_cliente,string,Identificador del cliente
+clientes.csv,nombre,string,Nombre del cliente
+clientes.csv,zona,string,Zona geográfica
+clientes.csv,tipo_cliente,string,Segmento de cliente
+catalogo.csv,id_producto,string,Identificador del producto
+catalogo.csv,categoria,string,Categoría del producto
+catalogo.csv,precio,float,Precio unitario (USD)
+catalogo.csv,tipo_entrega,string,Tipo de entrega preferida
+pedidos.csv,id_pedido,string,Identificador del pedido
+pedidos.csv,id_cliente,string,FK a clientes.id_cliente
+pedidos.csv,id_producto,string,FK a catalogo.id_producto
+pedidos.csv,fecha,datetime,Fecha y hora del pedido
+pedidos.csv,monto,float,Monto del pedido
+pedidos.csv,estado,string,Estado del pedido
+entregas.csv,id_pedido,string,FK a pedidos.id_pedido
+entregas.csv,hora_programada,datetime,Hora planificada de entrega
+entregas.csv,hora_real,datetime,Hora real de entrega
+entregas.csv,zona,string,Zona de entrega
+entregas.csv,conductor,string,Identificador del conductor
+entregas.csv,vehiculo,string,Identificador del vehículo
+sensores.csv,vehiculo,string,FK a entregas.vehiculo
+sensores.csv,timestamp,datetime,Hora del evento del sensor
+sensores.csv,latitud,float,Latitud aproximada
+sensores.csv,longitud,float,Longitud aproximada
+sensores.csv,temperatura,float,Temperatura medida (°C)
+sensores.csv,evento,string,OK o TEMP_CRITICA

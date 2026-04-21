@@ -1,0 +1,201 @@
+id_producto,categoria,precio,tipo_entrega
+P0001,Electrónicos,64.71,Next Day
+P0002,Ropa,233.09,Programada
+P0003,Hogar,107.14,Same Day
+P0004,Ropa,185.31,Next Day
+P0005,Electrónicos,254.19,Express
+P0006,Electrónicos,346.75,Same Day
+P0007,Ropa,24.46,Next Day
+P0008,Perecederos,400.71,Programada
+P0009,Medicamentos,315.81,Programada
+P0010,Perecederos,45.47,Same Day
+P0011,Perecederos,437.42,Next Day
+P0012,Bebidas,460.83,Same Day
+P0013,Perecederos,35.23,Same Day
+P0014,Hogar,142.05,Next Day
+P0015,Bebidas,404.07,Next Day
+P0016,Bebidas,375.39,Express
+P0017,Electrónicos,96.34,Next Day
+P0018,Perecederos,108.63,Programada
+P0019,Electrónicos,188.38,Same Day
+P0020,Ropa,244.84,Same Day
+P0021,Medicamentos,311.04,Programada
+P0022,Bebidas,187.61,Next Day
+P0023,Ropa,233.95,Programada
+P0024,Ropa,375.0,Programada
+P0025,Hogar,23.16,Express
+P0026,Medicamentos,129.96,Programada
+P0027,Ropa,358.11,Same Day
+P0028,Ropa,448.13,Programada
+P0029,Medicamentos,258.28,Same Day
+P0030,Medicamentos,268.4,Same Day
+P0031,Ropa,58.05,Same Day
+P0032,Medicamentos,226.47,Next Day
+P0033,Ropa,268.65,Express
+P0034,Ropa,125.02,Same Day
+P0035,Hogar,138.28,Same Day
+P0036,Perecederos,191.76,Next Day
+P0037,Ropa,14.94,Same Day
+P0038,Electrónicos,164.43,Programada
+P0039,Bebidas,109.67,Programada
+P0040,Perecederos,167.11,Express
+P0041,Perecederos,64.28,Same Day
+P0042,Perecederos,445.81,Next Day
+P0043,Hogar,298.83,Programada
+P0044,Ropa,341.16,Next Day
+P0045,Hogar,395.64,Next Day
+P0046,Ropa,251.73,Programada
+P0047,Hogar,48.03,Next Day
+P0048,Hogar,270.87,Programada
+P0049,Bebidas,295.49,Next Day
+P0050,Electrónicos,373.99,Programada
+P0051,Hogar,218.67,Same Day
+P0052,Bebidas,68.15,Express
+P0053,Medicamentos,145.47,Programada
+P0054,Electrónicos,184.73,Programada
+P0055,Hogar,324.73,Express
+P0056,Perecederos,287.54,Programada
+P0057,Medicamentos,181.27,Programada
+P0058,Medicamentos,493.33,Next Day
+P0059,Bebidas,304.86,Express
+P0060,Medicamentos,122.43,Same Day
+P0061,Electrónicos,55.38,Programada
+P0062,Hogar,80.67,Express
+P0063,Hogar,126.75,Next Day
+P0064,Perecederos,84.54,Same Day
+P0065,Bebidas,97.35,Express
+P0066,Perecederos,146.12,Same Day
+P0067,Medicamentos,90.82,Same Day
+P0068,Perecederos,448.9,Same Day
+P0069,Electrónicos,44.72,Programada
+P0070,Hogar,264.63,Programada
+P0071,Medicamentos,208.15,Next Day
+P0072,Perecederos,491.28,Next Day
+P0073,Bebidas,60.46,Express
+P0074,Electrónicos,201.94,Next Day
+P0075,Electrónicos,484.89,Same Day
+P0076,Perecederos,433.43,Same Day
+P0077,Hogar,409.45,Programada
+P0078,Perecederos,132.66,Same Day
+P0079,Medicamentos,89.59,Express
+P0080,Perecederos,335.98,Same Day
+P0081,Electrónicos,465.04,Same Day
+P0082,Perecederos,280.6,Express
+P0083,Hogar,287.95,Next Day
+P0084,Bebidas,143.59,Next Day
+P0085,Ropa,385.9,Express
+P0086,Perecederos,97.59,Programada
+P0087,Hogar,165.22,Same Day
+P0088,Hogar,215.59,Express
+P0089,Bebidas,256.27,Same Day
+P0090,Electrónicos,124.99,Programada
+P0091,Hogar,61.84,Same Day
+P0092,Hogar,307.26,Express
+P0093,Hogar,147.87,Same Day
+P0094,Hogar,292.71,Next Day
+P0095,Medicamentos,81.41,Programada
+P0096,Medicamentos,243.16,Programada
+P0097,Electrónicos,268.63,Programada
+P0098,Perecederos,30.65,Express
+P0099,Hogar,171.62,Programada
+P0100,Bebidas,71.54,Next Day
+P0101,Perecederos,36.37,Express
+P0102,Bebidas,495.03,Next Day
+P0103,Perecederos,164.57,Same Day
+P0104,Electrónicos,405.89,Same Day
+P0105,Hogar,131.05,Same Day
+P0106,Hogar,342.34,Same Day
+P0107,Ropa,381.31,Next Day
+P0108,Bebidas,299.84,Express
+P0109,Perecederos,238.43,Express
+P0110,Perecederos,208.86,Programada
+P0111,Medicamentos,177.69,Next Day
+P0112,Ropa,465.12,Same Day
+P0113,Medicamentos,416.16,Next Day
+P0114,Medicamentos,482.69,Programada
+P0115,Medicamentos,66.53,Programada
+P0116,Bebidas,366.78,Next Day
+P0117,Bebidas,469.48,Next Day
+P0118,Electrónicos,94.71,Next Day
+P0119,Electrónicos,37.92,Express
+P0120,Medicamentos,371.85,Same Day
+P0121,Ropa,289.36,Next Day
+P0122,Perecederos,421.71,Next Day
+P0123,Bebidas,74.19,Next Day
+P0124,Ropa,398.66,Programada
+P0125,Hogar,104.81,Programada
+P0126,Bebidas,86.01,Express
+P0127,Bebidas,86.31,Same Day
+P0128,Electrónicos,408.21,Express
+P0129,Perecederos,334.27,Same Day
+P0130,Perecederos,263.92,Programada
+P0131,Hogar,182.62,Programada
+P0132,Hogar,439.21,Programada
+P0133,Bebidas,199.26,Express
+P0134,Medicamentos,409.22,Next Day
+P0135,Electrónicos,222.37,Next Day
+P0136,Electrónicos,191.59,Programada
+P0137,Bebidas,234.03,Next Day
+P0138,Ropa,154.18,Next Day
+P0139,Medicamentos,375.07,Express
+P0140,Bebidas,253.85,Same Day
+P0141,Medicamentos,119.95,Programada
+P0142,Medicamentos,450.29,Programada
+P0143,Medicamentos,195.03,Express
+P0144,Bebidas,274.06,Express
+P0145,Electrónicos,453.7,Next Day
+P0146,Electrónicos,314.0,Programada
+P0147,Medicamentos,62.86,Same Day
+P0148,Ropa,470.22,Express
+P0149,Perecederos,315.72,Same Day
+P0150,Bebidas,170.78,Same Day
+P0151,Perecederos,73.94,Programada
+P0152,Ropa,398.04,Programada
+P0153,Bebidas,311.94,Express
+P0154,Medicamentos,269.06,Programada
+P0155,Electrónicos,447.48,Programada
+P0156,Perecederos,395.36,Programada
+P0157,Hogar,80.08,Same Day
+P0158,Hogar,159.3,Express
+P0159,Ropa,128.0,Next Day
+P0160,Medicamentos,373.25,Same Day
+P0161,Perecederos,21.6,Programada
+P0162,Medicamentos,287.1,Same Day
+P0163,Perecederos,382.42,Programada
+P0164,Ropa,439.0,Programada
+P0165,Ropa,174.33,Same Day
+P0166,Hogar,411.52,Express
+P0167,Medicamentos,59.76,Programada
+P0168,Bebidas,423.99,Express
+P0169,Hogar,68.11,Next Day
+P0170,Medicamentos,201.66,Programada
+P0171,Hogar,399.66,Express
+P0172,Bebidas,79.21,Express
+P0173,Electrónicos,118.48,Next Day
+P0174,Electrónicos,362.52,Express
+P0175,Electrónicos,361.42,Express
+P0176,Electrónicos,322.37,Next Day
+P0177,Perecederos,348.5,Programada
+P0178,Electrónicos,273.65,Express
+P0179,Bebidas,129.64,Express
+P0180,Ropa,176.12,Express
+P0181,Ropa,94.89,Same Day
+P0182,Perecederos,454.68,Next Day
+P0183,Electrónicos,293.78,Same Day
+P0184,Electrónicos,203.42,Next Day
+P0185,Electrónicos,233.69,Programada
+P0186,Hogar,473.91,Programada
+P0187,Medicamentos,80.91,Express
+P0188,Hogar,295.18,Next Day
+P0189,Medicamentos,255.41,Programada
+P0190,Electrónicos,307.67,Next Day
+P0191,Electrónicos,13.96,Programada
+P0192,Hogar,436.7,Same Day
+P0193,Hogar,466.4,Programada
+P0194,Medicamentos,284.74,Same Day
+P0195,Ropa,349.84,Programada
+P0196,Medicamentos,461.64,Express
+P0197,Hogar,355.08,Same Day
+P0198,Bebidas,80.51,Programada
+P0199,Hogar,290.26,Express
+P0200,Bebidas,305.32,Same Day
