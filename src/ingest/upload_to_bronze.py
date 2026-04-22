@@ -6,7 +6,7 @@ BUCKET_NAME = "logidata-datalake-jsge"
 # Apuntamos a la carpeta raíz 'data' desde la ubicación del script
 LOCAL_DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data/"))
 # Archivo que NO queremos subir
-IGNORE_FILE = "diccionario_datos.csv"
+IGNORE_FILE = ["diccionario_datos.csv", "sensores.csv"]
 
 def upload_to_bronze():
     # Inicializar cliente de S3
@@ -23,7 +23,7 @@ def upload_to_bronze():
 
     for file_name in files:
         # Lógica de exclusión
-        if file_name == IGNORE_FILE:
+        if file_name in IGNORE_FILE:
             print(f"🚫 Saltando {file_name} (Lista negra)...")
             continue
             

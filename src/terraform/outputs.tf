@@ -28,8 +28,7 @@ output "glue_job_name" {
 }
 
 output "lambda_function_name" {
-  description = "Nombre de la función Lambda procesadora"
-  value       = aws_lambda_function.sensor_processor.function_name
+  value = aws_lambda_function.process_sensors_lambda.function_name # <--- Cambiado de sensor_processor a process_sensors_lambda
 }
 
 # --- Datos de Notificaciones ---
