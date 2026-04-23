@@ -1,44 +1,54 @@
-# --- Datos del Data Lake ---
+# 1. Bucket S3
 output "s3_bucket_id" {
-  description = "ID del Bucket del Data Lake"
-  value       = aws_s3_bucket.logidata_lake.id
+  value = aws_s3_bucket.logidata_lake.id
 }
 
-# --- Datos de Streaming  ---
-output "kinesis_stream_arn" {
-  description = "ARN del Stream de Kinesis para configurar el simulador"
-  value       = aws_kinesis_stream.sensor_stream.arn
-}
-
+# 2. Kinesis Stream
 output "kinesis_stream_name" {
-  description = "Nombre del Stream de Kinesis"
-  value       = aws_kinesis_stream.sensor_stream.name
+  value = aws_kinesis_stream.sensor_stream.name
 }
 
-# --- Datos de Base de Datos ---
-output "dynamodb_table_name" {
-  description = "Nombre de la tabla de DynamoDB para sensores"
-  value       = aws_dynamodb_table.sensors_table.name
-}
-
-# --- Datos de Procesamiento ---
-output "glue_job_name" {
-  description = "Nombre del Job de Glue ETL"
-  value = aws_glue_job.job_batch.name
-}
-
+# 3. Lambda (El procesador de sensores real)
 output "lambda_function_name" {
-  value = aws_lambda_function.process_sensors_lambda.function_name # <--- Cambiado de sensor_processor a process_sensors_lambda
+  value = aws_lambda_function.process_sensors.function_name
 }
 
-# --- Datos de Notificaciones ---
+# 4. DynamoDB (Tabla de datos y tabla de contadores)
+output "dynamodb_table_sensors" {
+  value = aws_dynamodb_table.sensors_table.name
+}
+
+output "dynamodb_table_counter" {
+  value = aws_dynamodb_table.sensor_counter.name
+}
+
+# 5. SNS Topic (Alertas)
 output "sns_topic_arn" {
-  description = "ARN del tópico de SNS para alertas de temperatura"
-  value       = aws_sns_topic.alerts.arn
+  value = aws_sns_topic.alertas_temp.arn
 }
 
-# --- Datos de Analítica ---
-output "glue_catalog_database" {
-  description = "Base de datos en el catálogo de Glue"
-  value       = aws_glue_catalog_database.logidata_db.name
+# 6. Glue Job (Solo el de Gold, que es el que tienes declarado)
+output "job_gold_name" {
+  value = aws_glue_job.job_gold.name
 }
+
+# 7. Crawlers
+output "crawler_gold_name" {
+  value = aws_glue_crawler.gold_crawler.name
+}
+
+output "crawler_sensors_silver_name" {
+  value = aws_glue_crawler.sensors_silver_crawler.name
+}
+
+
+
+output "crawler_sensors_silver" {
+  value = aws_glue_crawler.sensors_silver_crawler.name
+}
+
+# --- ORQUESTACIÓN ---
+output "workflow_name" {
+  value = aws_glue_workflow.logidata_workflow.name
+}
+

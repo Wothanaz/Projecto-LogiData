@@ -53,7 +53,7 @@ def enviar_todo_el_csv():
                 print(f"✅ Enviado: {payload}")
                 
                 # Pausa para simular tiempo real
-                time.sleep(1)
+                time.sleep(0.3)
 
         print("\n✅ Fin del archivo. Todos los datos han sido enviados.")
 

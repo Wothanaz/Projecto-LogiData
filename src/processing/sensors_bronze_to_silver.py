@@ -8,8 +8,6 @@ from pyspark.sql.functions import col, from_unixtime, to_timestamp, year, month,
 
 # --- INICIALIZACIÓN ---
 args = getResolvedOptions(sys.argv, ['JOB_NAME', 'bucket_name'])
-bucket = args['bucket_name']
-print(f"Trabajando con el bucket: {bucket}")
 sc = SparkContext()
 glueContext = GlueContext(sc)
 spark = glueContext.spark_session
@@ -22,32 +20,36 @@ BUCKET = args['bucket_name']
 path_bronze = f"s3://{BUCKET}/bronze/sensores/"
 df_raw = spark.read.json(path_bronze)
 
-# 2. TRANSFORMACIÓN Y REGLAS DE CALIDAD
-eventos_validos = ["OK", "TEMP_CRITICA"]
+# 2. TRANSFORMACIÓN Y RENOMBRADO PREVENTIVO
+# Agregamos el prefijo 's_' para que en la capa Gold no choque con la tabla de Pedidos
+eventos_validos = ["OK", "TEMP_CRITICA", "Alerta"]
 
 df_silver = df_raw.select(
-    col("vehiculo").cast("string"),    
+    col("vehiculo").cast("string").alias("s_vehiculo"), 
     col("evento").cast("string"),
     col("temperatura").cast("float"),
     col("latitud").cast("double"),
     col("longitud").cast("double"),
-    # Convertimos el timestamp de segundos (simulador) a Timestamp de Spark
+    # Convertimos el timestamp de segundos a formato Timestamp
     to_timestamp(from_unixtime(col("timestamp"))).alias("evento_ts"),
     current_timestamp().alias("processed_at")
 ).filter(
-    (col("vehiculo").isNotNull()) & 
+    (col("s_vehiculo").isNotNull()) & 
     (col("evento").isin(eventos_validos))
 )
 
-# 3. PARTICIONAMIENTO POR TIEMPO
-df_final = df_silver.withColumn("year", year(col("evento_ts"))) \
-                    .withColumn("month", month(col("evento_ts"))) \
-                    .withColumn("day", dayofmonth(col("evento_ts")))
+# 3. CREACIÓN DE COLUMNAS DE TIEMPO PARA PARTICIONADO
+# También usamos el prefijo 's_' aquí
+df_final = df_silver.withColumn("s_year", year(col("evento_ts"))) \
+                    .withColumn("s_month", month(col("evento_ts"))) \
+                    .withColumn("s_day", dayofmonth(col("evento_ts")))
 
-# 4. ESCRITURA EN SILVER (Formato Parquet optimizado)
-silver_path = f"s3://{BUCKET}/silver/sensores"
+# 4. ESCRITURA EN SILVER (Formato Parquet)
+# Al usar partitionBy con s_year, s_month, s_day, el Crawler creará estas columnas en el catálogo
+silver_path = f"s3://{BUCKET}/silver/sensores/"
+
 df_final.write.mode("overwrite") \
-    .partitionBy("year", "month", "day") \
+    .partitionBy("s_year", "s_month", "s_day") \
     .format("parquet") \
     .save(silver_path)
 

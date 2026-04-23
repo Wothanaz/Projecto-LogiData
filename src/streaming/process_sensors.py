@@ -2,53 +2,55 @@ import base64
 import json
 import boto3
 import os
-from decimal import Decimal 
+from decimal import Decimal
 
-# 1. Inicializar el recurso sin asignar la tabla aún para evitar errores de Init
 dynamodb = boto3.resource('dynamodb')
-
-def validate_quality(data):
-    """
-    Validación de Calidad de Datos.
-    """
-    required_fields = ['vehiculo', 'timestamp', 'temperatura', 'latitud', 'longitud', 'evento']
-    
-    if not all(field in data for field in required_fields):
-        return False, "Faltan campos obligatorios"
-    
-    if not (-30 <= data['temperatura'] <= 80):
-        return False, "Temperatura fuera de rango físico posible"
-        
-    return True, "OK"
+sns = boto3.client('sns')
 
 def handler(event, context):
-    # 2. Obtener variables dentro del handler para asegurar que existan
     table_name = os.environ.get('TABLE_NAME')
-    table = dynamodb.Table(table_name)
+    counter_table_name = os.environ.get('COUNTER_TABLE_NAME') # Nueva tabla para el conteo
+    topic_arn = os.environ.get('SNS_TOPIC_ARN')
     
-    print(f"Recibidos {len(event['Records'])} registros de Kinesis.")
+    table = dynamodb.Table(table_name)
+    counter_table = dynamodb.Table(counter_table_name)
     
     for record in event['Records']:
         try:
-            # 3. Decodificación
             payload = base64.b64decode(record['kinesis']['data']).decode('utf-8')
             data = json.loads(payload, parse_float=Decimal)
+            vehiculo = data['vehiculo']
+            evento = data.get('evento')
+
+            # --- LÓGICA DE CONTEO CONSECUTIVO ---
             
-            # 4. Control de Calidad
-            is_valid, reason = validate_quality(data)
-            if not is_valid:
-                print(f"🚫 Registro descartado: {reason} | Datos: {data}")
-                continue 
+            # 1. Obtener el contador actual del vehículo
+            response = counter_table.get_item(Key={'vehiculo': vehiculo})
+            item = response.get('Item', {'vehiculo': vehiculo, 'consecutivos': 0})
+            current_count = int(item['consecutivos'])
+
+            if evento == 'TEMP_CRITICA':
+                new_count = current_count + 1
+                print(f"⚠️ {vehiculo} - Lectura crítica detectada ({new_count}/5)")
+                
+                # 2. Si llegamos a 5, enviamos correo
+                if new_count == 5:
+                    mensaje = f"EMERGENCIA: El vehículo {vehiculo} ha reportado 5 lecturas críticas CONSECUTIVAS."
+                    sns.publish(TopicArn=topic_arn, Message=mensaje, Subject=f"🚨 ALERTA PERSISTENTE: {vehiculo}")
+                    # Opcional: reiniciar a 0 o dejar que siga subiendo
+                    new_count = 0 
+            else:
+                # 3. Si el evento es 'OK' o cualquier otro, se rompe la racha
+                new_count = 0
             
-            # 5. Alerta de Temperatura (HU12) - SOLO PRINT, sin SNS
-            if data.get('evento') == 'Temperatura_critica':
-                print(f"⚠️ ¡ALERTA CRÍTICA DETECTADA! Vehículo: {data['vehiculo']} | Temp: {data['temperatura']}")
-            
-            # 6. Guardar en DynamoDB
-            data['processed_by'] = 'Lambda_Streaming_JSGE'
+            # 4. Actualizar el contador en DynamoDB
+            counter_table.put_item(Item={'vehiculo': vehiculo, 'consecutivos': new_count})
+
+            # --- GUARDAR EN TABLA PRINCIPAL Y CONTINUAR ---
+            data['processed_by'] = 'Lambda_JSGE_Consecutivos'
             table.put_item(Item=data)
             
         except Exception as e:
-            print(f"❌ Error procesando registro: {str(e)}")
+            print(f"Error: {str(e)}")
             
-    return {'statusCode': 200, 'body': 'Procesamiento completado'}
+    return {'statusCode': 200}
