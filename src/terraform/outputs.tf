@@ -24,7 +24,7 @@ output "dynamodb_table_name" {
 # --- Datos de Procesamiento ---
 output "glue_job_name" {
   description = "Nombre del Job de Glue ETL"
-  value       = aws_glue_job.bronze_to_silver.name
+  value = aws_glue_job.job_batch.name
 }
 
 output "lambda_function_name" {

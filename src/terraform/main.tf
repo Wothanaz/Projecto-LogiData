@@ -45,8 +45,10 @@ resource "aws_dynamodb_table" "sensors_table" {
   }
 }
 
+
+
 #==============================================================================
-# 2. STREAMING (Kinesis & Lambda con ventana de 5 min / 150 reg)
+# 2. STREAMING 
 #==============================================================================
 resource "aws_kinesis_stream" "sensor_stream" {
   name        = "logidata-sensor-stream-jsge"
@@ -82,7 +84,7 @@ resource "aws_lambda_event_source_mapping" "kinesis_streaming_automation" {
 
   # REQUERIMIENTO: 150 registros o 5 minutos
   batch_size                         = 150
-  maximum_batching_window_in_seconds = 300 
+  maximum_batching_window_in_seconds = 60 
 }
 
 #==============================================================================
@@ -96,17 +98,15 @@ resource "aws_glue_workflow" "logidata_workflow" {
   name = "logidata-s3-event-workflow"
 }
 
-resource "aws_glue_job" "bronze_to_silver" {
-  name         = "logidata-etl-silver-jsge"
-  role_arn     = aws_iam_role.glue_role.arn
+resource "aws_glue_job" "job_batch" {
+  name     = "LogiData-Batch-Processing-jsge"
+  role_arn = aws_iam_role.glue_role.arn
   glue_version = "4.0"
 
   command {
-    name            = "glueetl"
-    script_location = "s3://${aws_s3_bucket.logidata_lake.id}/scripts/bronze_to_silver.py"
+    script_location = "s3://${aws_s3_bucket.logidata_lake.bucket}/${aws_s3_object.glue_script_batch.key}"
     python_version  = "3"
- }
-
+  }
   
   default_arguments = {
     "--bucket_name" = aws_s3_bucket.logidata_lake.id
@@ -115,8 +115,8 @@ resource "aws_glue_job" "bronze_to_silver" {
 }
 
 
-#Subir script de bronze_to_silver
-resource "aws_s3_object" "glue_script" {
+#Subir script de bronze_to_silver batch
+resource "aws_s3_object" "glue_script_batch" {
   bucket = aws_s3_bucket.logidata_lake.id
   key    = "scripts/bronze_to_silver.py"
   source = "${path.module}/../processing/bronze_to_silver.py"
@@ -156,7 +156,7 @@ resource "aws_glue_trigger" "trigger_job_after_crawler" {
   }
 
   actions {
-    job_name = aws_glue_job.bronze_to_silver.name
+    job_name = aws_glue_job.job_batch.name
   }
 }
 
@@ -178,6 +178,119 @@ resource "aws_cloudwatch_event_target" "glue_target" {
   target_id = "TriggerLogiDataWorkflow"
   arn       = "arn:aws:glue:${var.aws_region}:${data.aws_caller_identity.current.account_id}:workflow/${aws_glue_workflow.logidata_workflow.name}"
   role_arn  = aws_iam_role.glue_role.arn
+}
+
+#============================================
+# ORQUESTACIÓN STREAM (Firehouse)
+#==============================================
+
+# Subir script de bronze_to_silver sensores
+resource "aws_s3_object" "glue_script_sensores" {
+  bucket = aws_s3_bucket.logidata_lake.id
+  key    = "scripts/sensors_bronze_to_silver.py" 
+  source = "${path.module}/../processing/sensors_bronze_to_silver.py" 
+  etag   = filemd5("${path.module}/../processing/sensors_bronze_to_silver.py") 
+}
+resource "aws_glue_job" "job_sensores" {
+  name     = "LogiData-Sensors-Processing-jsge"
+  role_arn = aws_iam_role.glue_role.arn
+  glue_version = "4.0"
+  command {
+    script_location = "s3://${aws_s3_bucket.logidata_lake.bucket}/${aws_s3_object.glue_script_sensores.key}"
+    python_version  = "3"
+  }
+
+
+    default_arguments = {
+    "--job-language"        = "python"
+    "--job-bookmark-option" = "job-bookmark-disable"
+    "--bucket_name"         = aws_s3_bucket.logidata_lake.id 
+  }
+  # ------------------------
+}
+
+# --- CONFIGURACIÓN DE FIREHOSE (En main.tf) ---
+resource "aws_kinesis_firehose_delivery_stream" "sensores_bronze" {
+  name        = "firehose-sensores-to-bronze"
+  destination = "extended_s3"
+
+  kinesis_source_configuration {
+    kinesis_stream_arn = aws_kinesis_stream.sensor_stream.arn
+    role_arn           = aws_iam_role.firehose_role.arn
+  }
+
+  extended_s3_configuration {
+    role_arn   = aws_iam_role.firehose_role.arn
+    bucket_arn = aws_s3_bucket.logidata_lake.arn
+
+    prefix              = "bronze/sensores/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/"
+    error_output_prefix = "errors/sensores/!{firehose:error-output-type}/"
+
+    buffering_size     = 64
+    buffering_interval = 120 # Tus 2 minutos de buffer
+
+    compression_format = "GZIP"
+  }
+}
+
+# --- ÚNICA CONFIGURACIÓN DE CICLO DE VIDA ---
+resource "aws_s3_bucket_lifecycle_configuration" "data_lake_lifecycle" {
+  bucket = aws_s3_bucket.logidata_lake.id
+
+  # REGLA 1: Para los datos de sensores en streaming (Capa Bronze)
+  rule {
+    id     = "archive-bronze-sensors"
+    status = "Enabled"
+
+    filter {
+      prefix = "bronze/sensores/"
+    }
+
+    # Mover a almacenamiento barato tras 30 días
+    transition {
+      days          = 30
+      storage_class = "GLACIER_IR"
+    }
+
+    # Borrar permanentemente tras 90 días
+    expiration {
+      days = 90
+    }
+  }
+
+  # REGLA 2: Si tenías otra regla antes (por ejemplo, para pedidos), agrégala aquí abajo
+  # rule {
+  #   id     = "otra-regla"
+  #   status = "Enabled"
+  #   ...
+  # }
+}
+#DATACATALOG Y CRAWLER
+# 1. Base de datos en el Data Catalog (si no la tienes creada)
+resource "aws_glue_catalog_database" "bronze_db" {
+  name = "logidata_bronze_db"
+}
+
+# 2. El Crawler para los Sensores
+resource "aws_glue_crawler" "sensors_crawler" {
+  database_name = aws_glue_catalog_database.bronze_db.name
+  name          = "logidata-sensors-bronze-crawler"
+  role          = aws_iam_role.glue_role.arn # El mismo rol de Glue que tiene permisos de S3
+
+  s3_target {
+    # Apunta a la carpeta base de sensores
+    path = "s3://${var.bucket_name}/bronze/sensores/"
+  }
+
+  # Configuración para que detecte las particiones de tiempo automáticamente
+  configuration = jsonencode({
+    Version = 1.0
+    CrawlerOutput = {
+      Partitions = { AddOrUpdateBehavior = "InheritFromTable" }
+    }
+  })
+
+  description = "Crawler para descubrir datos de streaming de sensores en Bronze"
 }
 
 #==============================================================================
