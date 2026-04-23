@@ -27,3 +27,7 @@ variable "notification_email" {
   type        = string
   default     = "tu-correo@ejemplo.com" # CAMBIA ESTO
 }
+variable "quicksight_user_arn" {
+  description = "ARN del usuario de QuickSight para asignar permisos a los recursos"
+  type        = string
+}

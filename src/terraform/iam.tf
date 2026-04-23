@@ -223,3 +223,97 @@ resource "aws_iam_role_policy" "firehose_s3_policy" {
     ]
   })
 }
+
+#=========================================
+#Rol PAra quicksight
+#=========================================
+# --- 2. Rol de Servicio para QuickSight ---
+resource "aws_iam_role" "quicksight_role" {
+  name = "${var.project_tag}-QuickSight-Service-Role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "quicksight.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = {
+    Project = var.project_tag
+  }
+}
+
+# --- 3. Política de Acceso a Datos (S3, Athena, Glue) ---
+resource "aws_iam_policy" "quicksight_data_policy" {
+  name        = "${var.project_tag}-QuickSight-Data-Policy"
+  description = "Permite a QuickSight consultar el Data Lake LogiData"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      # Lectura del Data Lake (Silver y Gold)
+      {
+        Action = [
+          "s3:GetObject",
+          "s3:ListBucket",
+          "s3:GetBucketLocation"
+        ]
+        Effect   = "Allow"
+        Resource = [
+          "arn:aws:s3:::${var.bucket_name}",
+          "arn:aws:s3:::${var.bucket_name}/*"
+        ]
+      },
+      # Ejecución en Athena
+      {
+        Action = [
+          "athena:BatchGetQueryExecution",
+          "athena:GetQueryExecution",
+          "athena:GetQueryResults",
+          "athena:StartQueryExecution",
+          "athena:StopQueryExecution",
+          "athena:ListWorkGroups",
+          "athena:GetWorkGroup"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+      # Consulta al Catálogo de Glue (Metadata)
+      {
+        Action = [
+          "glue:GetDatabase",
+          "glue:GetDatabases",
+          "glue:GetTable",
+          "glue:GetTables",
+          "glue:GetPartition",
+          "glue:GetPartitions"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+      # Permisos para los resultados de Athena
+      {
+        Action = [
+          "s3:PutObject",
+          "s3:GetBucketLocation"
+        ]
+        Effect   = "Allow"
+        Resource = [
+          "arn:aws:s3:::aws-athena-query-results-*"
+        ]
+      }
+    ]
+  })
+}
+
+# --- 4. Adjuntar Política al Rol ---
+resource "aws_iam_role_policy_attachment" "quicksight_attach" {
+  role       = aws_iam_role.quicksight_role.name
+  policy_arn = aws_iam_policy.quicksight_data_policy.arn
+}

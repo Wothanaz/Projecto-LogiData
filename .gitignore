@@ -1,7 +1,13 @@
 # .gitignore
+
+#ignorar DB postgress
 postgres_data/
 __pycache__/
 .DS_Store
+# Ignorar estados locales de terraform
 .terraform/
-*.tfstate
-*.tfstate.*
+terraform.tfstate
+terraform.tfstate.backup
+# Ignorar archivos de valores de variables
+*.tfvars
+*.tfvars.json

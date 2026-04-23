@@ -42,7 +42,6 @@ output "crawler_sensors_silver_name" {
 }
 
 
-
 output "crawler_sensors_silver" {
   value = aws_glue_crawler.sensors_silver_crawler.name
 }
@@ -52,3 +51,6 @@ output "workflow_name" {
   value = aws_glue_workflow.logidata_workflow.name
 }
 
+output "quicksight_dataset_arn" {
+  value = aws_quicksight_data_set.fact_ventas_dataset.arn
+}

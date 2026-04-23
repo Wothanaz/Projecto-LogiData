@@ -348,3 +348,85 @@ resource "aws_glue_crawler" "gold_crawler" {
     }
   })
 }
+
+#==============
+#Configuracion quicksight
+#===================
+
+# --- 1. Conexión a Athena (Data Source) ---
+resource "aws_quicksight_data_source" "athena_source" {
+  data_source_id = "logidata-athena-source"
+  name           = "LogiData_Athena_Source"
+  type           = "ATHENA"
+  aws_account_id = data.aws_caller_identity.current.account_id
+
+  parameters {
+    athena {
+      work_group = "primary" # Asegúrate de que el workgroup exista
+    }
+  }
+
+  permission {
+    actions   = ["quicksight:DescribeDataSource", "quicksight:DescribeDataSourcePermissions", "quicksight:PassDataSource", "quicksight:UpdateDataSource", "quicksight:DeleteDataSource", "quicksight:UpdateDataSourcePermissions"]
+    principal = var.quicksight_user_arn
+  }
+}
+
+# --- 2. Registro de la Tabla Gold (Data Set) ---
+resource "aws_quicksight_data_set" "fact_ventas_dataset" {
+  data_set_id    = "fact-ventas-calidad-dataset"
+  name           = "Fact_Ventas_Calidad_Gold"
+  aws_account_id = data.aws_caller_identity.current.account_id
+  import_mode    = "DIRECT_QUERY"
+
+  physical_table_map {
+    physical_table_map_id = "FactVentasTable" 
+
+    relational_table {
+      data_source_arn = aws_quicksight_data_source.athena_source.arn
+      schema          = "logidata_gold_db"
+      name            = "fact_ventas_calidad"
+
+      input_columns {
+        name = "id_pedido"
+        type = "STRING"
+      }
+      input_columns {
+        name = "zona"
+        type = "STRING"
+      }
+      input_columns {
+        name = "monto"
+        type = "DECIMAL"
+      }
+      input_columns {
+        name = "conductor"
+        type = "STRING"
+      }
+      input_columns {
+        name = "temp_promedio_dia"
+        type = "DECIMAL"
+      }
+      input_columns {
+        name = "total_alertas_dia"
+        type = "INTEGER"
+      }
+    }
+  }
+
+permissions {
+    actions   = [      
+      "quicksight:DescribeDataSet", 
+      "quicksight:DescribeDataSetPermissions", 
+      "quicksight:PassDataSet", 
+      "quicksight:DescribeIngestion",  
+      "quicksight:ListIngestions",
+      "quicksight:UpdateDataSet", 
+      "quicksight:DeleteDataSet", 
+      "quicksight:UpdateDataSetPermissions", 
+      "quicksight:CreateIngestion", 
+      "quicksight:CancelIngestion"
+    ]
+    principal = var.quicksight_user_arn
+  }
+}
